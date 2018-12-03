@@ -1,17 +1,57 @@
 import Vue from "vue";
 import Router from "vue-router";
-import Home from "./views/Home.vue";
+import Home from "./pages/Home.vue";
+import Login from "./pages/login.vue";
+import Inbox from "./pages/inbox.vue";
+import Week from "./pages/week.vue";
+import Tags from "./pages/tags.vue";
+import Team from "./pages/team.vue";
 
 Vue.use(Router);
 
-export default new Router({
+const router = new Router({
   mode: "history",
   base: process.env.BASE_URL,
   routes: [
     {
       path: "/",
+      redirect: "/inbox",
       name: "home",
-      component: Home
+      component: Home,
+      children: [
+        {
+          path: "inbox",
+          name: "inbox",
+          component: Inbox
+        },
+        {
+          path: "week",
+          name: "week",
+          component: Week
+        },
+        {
+          path: "tags",
+          name: "tags",
+          component: Tags
+        },
+        {
+          path: "team",
+          name: "team",
+          component: Team
+        }
+      ],
+      beforeEnter: (to, from, next) => {
+        if (!localStorage.token) {
+          next({ path: "/login" });
+        } else {
+          next();
+        }
+      }
+    },
+    {
+      path: "/login",
+      name: "login",
+      component: Login
     },
     {
       path: "/about",
@@ -24,3 +64,5 @@ export default new Router({
     }
   ]
 });
+
+export default router;
