@@ -6,7 +6,11 @@ import Inbox from "./pages/inbox.vue";
 import Week from "./pages/week.vue";
 import Tags from "./pages/tags.vue";
 import Team from "./pages/team.vue";
-
+import SignUp from "./pages/signup";
+import myTeams from './pages/myTeams'
+import Tasks from './pages/tasks'
+import MyProfile from './pages/profile'
+import News from './pages/news'
 Vue.use(Router);
 
 const router = new Router({
@@ -35,10 +39,30 @@ const router = new Router({
           component: Tags
         },
         {
-          path: "team",
-          name: "team",
+          path: "creatingTeam",
+          name: "creatingTeam",
           component: Team
-        }
+        },
+        {
+          path: "myTeams",
+          name: "myTeams",
+          component: myTeams
+        },
+        {
+          path: "/tasks",
+          name: "tasks",
+          component: Tasks
+        },
+        {
+          path: "/profile",
+          name: "profile",
+          component: MyProfile
+        },
+        {
+          path: "/news",
+          name: "news",
+          component: News
+        },
       ],
       beforeEnter: (to, from, next) => {
         if (!localStorage.token) {
@@ -52,6 +76,11 @@ const router = new Router({
       path: "/login",
       name: "login",
       component: Login
+    },
+    {
+      path: "/signUp",
+      name: "signup",
+      component: SignUp
     },
     {
       path: "/about",

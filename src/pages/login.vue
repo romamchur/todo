@@ -4,7 +4,7 @@
       <v-layout column>
         <v-flex class="login__question">
           <span>No account?</span>
-          <v-btn color="info" dark> Sing up </v-btn>
+          <v-btn color="info" dark :to="'/signUp'"> Sing up </v-btn>
         </v-flex>
         <v-flex class="login__form-wrapper">
           <v-form ref="form" class="login__form">
@@ -34,6 +34,7 @@
   </v-content>
 </template>
 <script>
+  import firebase from 'firebase'
 export default {
   data() {
     return {
@@ -54,8 +55,24 @@ export default {
     login() {
 
         if(this.$refs.form.validate()) {
-            localStorage.token = "generatedToken"
+          localStorage.token = "generatedToken"
+          firebase.auth().signInWithEmailAndPassword(this.email, this.password).then(
+            (user)=>{
+              this.$router.replace('/')
+            },
+            (err) =>{
+              alert(err.message);
+            }
+          )
+
+
         }
+    }
+  },
+  created() {
+
+    if (firebase.auth().currentUser) {
+      this.$router.replace('/')
     }
   }
 };

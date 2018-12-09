@@ -5,22 +5,34 @@
     >
         <div class="td-avatar"  slot="activator">
             <v-avatar size="36px">
-                <img src="https://avatars0.githubusercontent.com/u/9064066?v=4&s=460" alt="Avatar">
+                <img :src="profile_picture">
             </v-avatar>
 
-            <span class="td-avatar__name">Roman Mamchur</span>
+            <span class="td-avatar__name" >{{username}}</span>
         </div>
-        <v-list>
-            <v-list-tile>
-                <v-list-tile-title>Log out</v-list-tile-title>
-            </v-list-tile>
-        </v-list>
+
     </v-menu>
 
 </template>
 <script>
+
+    import  firebase from 'firebase'
     export default {
-    }
+     data(){
+       return{
+         profile_picture:null,
+         username:null,
+         users : [],
+       }
+     },
+      created() {
+        firebase.database().ref('users/'+  firebase.auth().currentUser.uid).on('value',(snapshot)=>{
+          this.username = snapshot.val().username;
+          this.profile_picture = snapshot.val().profile_picture
+        })
+
+      }
+          }
 </script>
 <style scoped lang="less">
     .td-avatar {
