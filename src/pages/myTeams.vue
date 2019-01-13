@@ -1,14 +1,6 @@
 <template>
     <div>
     <v-flex full-width>
-    <v-toolbar light>
-        <v-spacer></v-spacer>
-        <v-toolbar-items class="hidden-sm-and-down">
-            <v-btn :to="'/myTeams'" flat>My teams</v-btn>
-            <v-btn :to="'/creatingTeam'"flat>Create new team</v-btn>
-        </v-toolbar-items>
-    </v-toolbar>
-
         <v-layout row>
             <v-flex full-width>
                 <v-card>

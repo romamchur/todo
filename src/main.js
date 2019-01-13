@@ -6,7 +6,7 @@ import Vuetify from 'vuetify';
 import firebase from 'firebase';
 import 'vuetify/dist/vuetify.min.css';
 import '@mdi/font/css/materialdesignicons.css'
-
+import firestore from 'firebase/firestore'
 Vue.use(Vuetify, {
     iconfont: 'mdi',
 });
@@ -22,10 +22,11 @@ var config = {
   storageBucket: "todo-1694d.appspot.com",
   messagingSenderId: "730013255792"
 };
-firebase.initializeApp(config);
-
+const firebaseApp = firebase.initializeApp(config);
+firebaseApp.firestore().settings({timestampsInSnapshots:true})
 
 Vue.config.productionTip = false;
+export default firebaseApp.firestore()
 firebase.auth().onAuthStateChanged(() => {
   if (!app) {
     app = new Vue({

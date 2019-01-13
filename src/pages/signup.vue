@@ -36,6 +36,7 @@
                         </v-text-field>
 
                         <v-btn color="info" dark @click="signup()"> Sign Up </v-btn>
+                        <v-btn color="light" light @click="signupFacebook()"> Sign Up with Facebook</v-btn>
                     </v-form>
                 </v-flex>
             </v-layout>
@@ -76,12 +77,15 @@
               firebase.database().ref('users/' + userId).set({
                 news:['Signed Up!'],
                 uid:firebase.auth().currentUser.uid,
-                username: this.nickname,
+                username:this.nickname,
                 email: this.email,
-                profile_picture : 'https://lh3.googleusercontent.com/l6JAkhvfxbP61_FWN92j4ulDMXJNH3HT1DR6xrE7MtwW-2AxpZl_WLnBzTpWhCuYkbHihgBQ=w640-h400-e365'
+                profile_picture : {value:'https://lh3.googleusercontent.com/l6JAkhvfxbP61_FWN92j4ulDMXJNH3HT1DR6xrE7MtwW-2AxpZl_WLnBzTpWhCuYkbHihgBQ=w640-h400-e365'}
               });
               var  individual_info =[
               {
+                chat:[{author:'Admin',
+                        text:"Hi,it's your INDIVIDUAL chat :)",
+                        avatar:"https://wi-images.condecdn.net/image/6DoWNVJlrWM/crop/2040/f/black-hole.jpg"}],
                 countCompleted:0,
                 countFailed:0,
                 name: {value:'Individual'},
@@ -99,9 +103,12 @@
                   tasks
               :
                 [{
+                  team:{value:'Individual'},
+                  date: new Date(),
                   name : 'Sign Up',
-                  completed:true,
-                  failed:false
+                  completed:{value:true},
+                  failed:{value:false},
+                  main:{main:false}
                 }],
                   avatar
               :
@@ -123,6 +130,74 @@
             }
 
         }
+      },
+      signupFacebook(){
+      var provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).then(function(result) {
+
+var token = result.credential.accessToken;
+
+var user = result.user;
+console.log(user)
+firebase().database().ref('users').once('value',function(snapshot){
+  
+})
+var userId= firebase.auth().currentUser.uid
+firebase.database().ref('users/' + userId).set({
+  news:['Signed Up!'],
+  uid:firebase.auth().currentUser.uid,
+  username:user.displayName,
+  email: user.email,
+  profile_picture:{value:user.photoURL},
+  teams:{team:[{  chat:[{author:'Admin',
+            text:"Hi,it's your INDIVIDUAL chat :)",
+            avatar:"https://wi-images.condecdn.net/image/6DoWNVJlrWM/crop/2040/f/black-hole.jpg"}],
+    countCompleted:0,
+    countFailed:0,
+    name: {value:'Individual'},
+      teammates:
+      [{
+        uid:firebase.auth().currentUser.uid,
+        username : user.displayName,
+        profile_picture:'https://lh3.googleusercontent.com/l6JAkhvfxbP61_FWN92j4ulDMXJNH3HT1DR6xrE7MtwW-2AxpZl_WLnBzTpWhCuYkbHihgBQ=w640-h400-e365'
+  }],
+      creator
+  : {
+        uid:firebase.auth().currentUser.uid,
+        name:user.displayName
+  },
+      tasks
+  :
+    [{
+      team:{value:'Individual'},
+      date: new Date(),
+      name : 'Sign Up',
+      completed:{value:true},
+      failed:{value:false},
+      main:{main:false}
+    }],
+      avatar
+  :
+    'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbU62a0ZbEa7UgZ054vrXmUbRwd77RRQPouSVP-qlM6g96GhOE'},]
+  }
+});
+
+
+this.$router.replace('/')
+
+
+
+}).catch(function(error) {
+// Handle Errors here.
+var errorCode = error.code;
+console.log(errorCode)
+var errorMessage = error.message;
+// The email of the user's account used.
+var email = error.email;
+// The firebase.auth.AuthCredential type that was used.
+var credential = error.credential;
+// ...
+});
       }
     },
     mounted (){

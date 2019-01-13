@@ -1,5 +1,5 @@
 <template>
-  <v-app dark> <router-view></router-view> </v-app>
+  <v-app light> <router-view></router-view> </v-app>
 </template>
 
 <script>

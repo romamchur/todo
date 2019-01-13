@@ -4,6 +4,7 @@ import Home from "./pages/Home.vue";
 import Login from "./pages/login.vue";
 import Inbox from "./pages/inbox.vue";
 import Week from "./pages/week.vue";
+import Day from "./pages/day.vue"
 import Tags from "./pages/tags.vue";
 import Team from "./pages/team.vue";
 import SignUp from "./pages/signup";
@@ -11,6 +12,9 @@ import myTeams from './pages/myTeams'
 import Tasks from './pages/tasks'
 import MyProfile from './pages/profile'
 import News from './pages/news'
+import teamChat from './pages/chats.vue'
+import privateChats from './pages/privateChats.vue'
+import notifications from './pages/notifications.vue'
 Vue.use(Router);
 
 const router = new Router({
@@ -62,6 +66,26 @@ const router = new Router({
           path: "/news",
           name: "news",
           component: News
+        },
+        {
+          path: "/day",
+          name: "day",
+          component: Day
+        },
+        {
+          path: "/teamChats",
+          name: "teamChats",
+          component: teamChat
+        },
+        {
+          path: "/privateChats",
+          name: "privateChats",
+          component: privateChats
+        },
+        {
+          path: "/notifications",
+          name: "notifications",
+          component: notifications
         },
       ],
       beforeEnter: (to, from, next) => {

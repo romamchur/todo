@@ -4,10 +4,9 @@
             bottom
     >
         <div class="td-avatar"  slot="activator">
-            <v-avatar size="36px">
-                <img :src="profile_picture">
+            <v-avatar size="48px">
+                <img :src="profile_picture.value">
             </v-avatar>
-
             <span class="td-avatar__name" >{{username}}</span>
         </div>
 
