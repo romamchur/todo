@@ -11,7 +11,6 @@
                        <span v-if="chat.name1!=currentUserName"> <strong> {{ chat.name1 }} </strong> </span>
                        <span v-if="chat.name2!=currentUserName"> <strong> {{ chat.name2}} </strong> </span>
                     </v-subheader>
-
                     <v-divider
                     >
                         {{ chat.name }}
@@ -25,11 +24,9 @@
                             <img :src="chat.avatar1">
                         </v-list-tile-avatar>
                         <v-list-tile-avatar
-
                         >
                             <img :src="chat.avatar2">
                         </v-list-tile-avatar>
-
                         <v-list-tile-content>
                             <v-list-tile-title v-html="chat.msg[chat.msg.length-1].text"></v-list-tile-title>
                             <v-list-tile-sub-title v-html="chat.msg[chat.msg.length-1].author_name"></v-list-tile-sub-title>

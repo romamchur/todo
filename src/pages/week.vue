@@ -1,94 +1,79 @@
 <template>
-    <div class="background">
-        <v-layout  row full-width>
-            <v-flex full-width>
-                <v-card full-width>
-                    <v-toolbar color="dark" dark >
-                        <v-toolbar-title>Week Tasks</v-toolbar-title>
-                    </v-toolbar>
-                    <v-list light full-width>
-                        <v-list-tile
-                                v-for="task in tasks"
-                                @click=""
-                        >
-                            <v-list-tile-content full-width>
-                                <v-list-tile-title full-width>
-                                    <v-icon v-if="task.main.main">mdi-star</v-icon>
-                                    <v-icon v-if="!task.main.main">mdi-star-outline</v-icon>
-                                    <span id="name">{{task.name}}</span>
-                                    <v-icon id="teamIcon">mdi-account-group</v-icon>
-                                    <span id="team">{{task.team.value}}</span>
-                                    <v-icon id="CalendarIcon">mdi-calendar-range</v-icon>
-                                    <span id="Date">{{task.date}}</span>
-                                </v-list-tile-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </v-list>
-                </v-card>
-            </v-flex>
+  <v-layout row>
+    <v-flex xs12>
+      <v-card v-for="(task, index) in tasks" :key="index" class="task">
+        <v-layout row>
+          <v-flex xs1></v-flex>
+          <v-flex xs1>
+            <v-icon>{{ taskIcon(task) }}</v-icon>
+          </v-flex>
+          <v-flex xs3>
+            <div>{{ task.name }}</div>
+          </v-flex>
+          <v-flex xs3>
+            <v-icon>mdi-account-group</v-icon>
+            <div>{{ task.team }}</div>
+          </v-flex>
+          <v-flex xs2>
+            <v-icon>mdi-calendar-range</v-icon>
+            <div>{{ task.date }}</div>
+          </v-flex>
+          <v-flex xs2></v-flex>
         </v-layout>
-    </div>
+      </v-card>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
-    import firebase from  'firebase'
+import { mapGetters } from "vuex";
 
-     export  default {
-       data(){
-         return{
-            tasks:[]
-         }
-       },
-       created(){
-         this.tasks = [];
-         let id=firebase.auth().currentUser.uid;
-         var tempTeams;
-         firebase.database().ref('users/'+id+'/teams'+'/team').once('value',function(snapshot) {
-           tempTeams = snapshot.val();
-         })
-         console.log(tempTeams)
-         for(let i=0;i<tempTeams.length;i++){
-            if(tempTeams[i].tasks.length == undefined){
-              tempTeams.splice(i,1);
-            }
-         }
-         for(let i=0;i<tempTeams.length;i++){
-           for(let j=0;j<tempTeams[i].tasks.length;j++){
-             let date = new Date(tempTeams[i].tasks[j].date+'T'+tempTeams[i].tasks[j].time+':00Z');
-             if(date.getTime()-new Date().getTime() < 604800000){
-               this.tasks.push(tempTeams[i].tasks[j])
-             }
-           }
-         }
-       }
-     }
+export default {
+  data() {
+    return {
+      tasks: []
+    };
+  },
+  computed: {
+    ...mapGetters(["teams"])
+  },
+  methods: {
+    taskIcon(task) {
+      return task.main.main ? "mdi-star" : "mdi-star-outline";
+    }
+  },
+  created() {
+    this.teams.forEach(team => {
+      const filteredTasks = team.tasks.filter(t => {
+        const time = new Date(`${t.date}T${t.time}:00Z`).getTime();
+        const timeNow = new Date().getTime();
+
+        return time - timeNow < 604800000;
+      });
+
+      this.tasks = this.tasks.concat(filteredTasks);
+    });
+
+    console.log(this.tasks);
+  }
+};
 </script>
 
-<style scoped>
-    .background{
-        position:absolute;
-        top:10%;
-        left:10%;
-        width:88%;
+<style scoped lang="less">
+.task {
+  height: 60px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 8px;
+
+  .flex {
+    display: flex;
+    align-items: center;
+
+    .v-icon {
+      margin-right: 6px;
     }
-    #name{
-        position: absolute;
-        left:10%;
-    }
-    #teamIcon{
-        position:absolute;
-        left:35%;
-    }
-    #team{
-        position:absolute;
-        left:39%
-    }
-    #CalendarIcon{
-        position: absolute;
-        left:80%
-    }
-    #Date{
-        position: absolute;
-        left:85%;
-    }
+  }
+}
 </style>

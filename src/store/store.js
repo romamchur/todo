@@ -1,14 +1,37 @@
 import Vue from "vue";
 import Vuex from "vuex";
-import auth from './modules/auth';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
-    modules: {
-      auth
+  state: {
+    profile: {
+      username: null,
+      email: null,
+      avatar: null,
+      uid: null
+    },
+    teams: []
+  },
+  mutations: {
+    updateState(state, payload) {
+      state.profile = Object.assign(
+        {},
+        {
+          email: payload.email,
+          username: payload.username,
+          avatar: payload.profile_picture.value,
+          uid: payload.uid
+        }
+      );
+
+      state.teams = payload.teams.team;
+      console.log(state.teams)
     }
+  },
+  actions: {},
+  getters: {
+    profile: state => state.profile,
+    teams: state => state.teams
+  }
 });

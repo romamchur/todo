@@ -4,17 +4,17 @@ import Home from "./pages/Home.vue";
 import Login from "./pages/login.vue";
 import Inbox from "./pages/inbox.vue";
 import Week from "./pages/week.vue";
-import Day from "./pages/day.vue"
+import Day from "./pages/day.vue";
 import Tags from "./pages/tags.vue";
 import Team from "./pages/team.vue";
 import SignUp from "./pages/signup";
-import myTeams from './pages/myTeams'
-import Tasks from './pages/tasks'
-import MyProfile from './pages/profile'
-import News from './pages/news'
-import teamChat from './pages/chats.vue'
-import privateChats from './pages/privateChats.vue'
-import notifications from './pages/notifications.vue'
+import myTeams from "./pages/myTeams";
+import Tasks from "./pages/tasks";
+import MyProfile from "./pages/profile";
+import News from "./pages/news";
+import teamChat from "./pages/chats.vue";
+import privateChats from "./pages/privateChats.vue";
+import notifications from "./pages/notifications.vue";
 Vue.use(Router);
 
 const router = new Router({
@@ -86,7 +86,7 @@ const router = new Router({
           path: "/notifications",
           name: "notifications",
           component: notifications
-        },
+        }
       ],
       beforeEnter: (to, from, next) => {
         if (!localStorage.token) {
@@ -105,15 +105,6 @@ const router = new Router({
       path: "/signUp",
       name: "signup",
       component: SignUp
-    },
-    {
-      path: "/about",
-      name: "about",
-      // route level code-splitting
-      // this generates a separate chunk (about.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () =>
-        import(/* webpackChunkName: "about" */ "./views/About.vue")
     }
   ]
 });

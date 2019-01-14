@@ -1,84 +1,81 @@
 <template>
     <div id="content">
-    <v-layout row>
-        <v-flex full-width>
-            <v-card>
-                <v-list two-line>
-                    <template v-for="chat in chats">
-                        <v-subheader
-                                v-if="chat.team_name"
+        <v-layout row>
+            <v-flex full-width>
+                <v-card>
+                    <v-list two-line>
+                        <template v-for="chat in chats">
+                            <v-subheader
+                                    v-if="chat.team_name"
+                            >
+                                <span> <strong> {{ chat.team_name }} </strong> </span>
+                            </v-subheader>
+                            <v-divider
+                            >
+                                {{ chat.team_name }}
+                            </v-divider>
 
+                            <v-list-tile
+                                    avatar
+                                    @click="openChatDialog(chat.team_name)"
+                            >
+                                <v-list-tile-avatar>
+                                    <img :src="chat.team_avatar">
+                                </v-list-tile-avatar>
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-html="chat.lastMsg.text"></v-list-tile-title>
+                                    <v-list-tile-sub-title v-html="chat.lastMsg.author"></v-list-tile-sub-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </template>
+                    </v-list>
+                </v-card>
+            </v-flex>
+        </v-layout>
+        <div >
+            <v-layout  >
+                <v-dialog v-model="dialog" width="800px">
+
+                    <v-card full-widht>
+                        <v-card-title>
+                            <span class="headline">{{title}}</span>
+                        </v-card-title>
+                        <v-card-text>
+                            <v-list-tile
+                                    v-for="msg in this.messages"
+                                    avatar
+
+                            >
+                                <v-list-tile-avatar>
+                                    <img :src="msg.avatar">
+                                </v-list-tile-avatar>
+                                <span class="spanAuthor">{{msg.author}} :   </span>
+                                <v-list-tile-content>
+                                    <v-list-tile-title v-text="msg.text"></v-list-tile-title>
+                                </v-list-tile-content>
+                            </v-list-tile>
+                        </v-card-text>
+                        <v-text-field
+                                id="msgForm"
+                                solo
+                                fixed
+                                full-width
+                                v-model = "message_text"
+                                placeholder="Message"
                         >
-                           <span> <strong> {{ chat.team_name }} </strong> </span>
-                        </v-subheader>
-
-                        <v-divider
+                        </v-text-field>
+                        <v-spacer></v-spacer>
+                        <v-btn
+                                light
+                                left
+                                @click = "sendMsg"
                         >
-                            {{ chat.team_name }}
-                        </v-divider>
-
-                        <v-list-tile
-                                avatar
-                                @click="openChatDialog(chat.team_name)"
-                        >
-                            <v-list-tile-avatar>
-                                <img :src="chat.team_avatar">
-                            </v-list-tile-avatar>
-
-                            <v-list-tile-content>
-                                <v-list-tile-title v-html="chat.lastMsg.text"></v-list-tile-title>
-                                <v-list-tile-sub-title v-html="chat.lastMsg.author"></v-list-tile-sub-title>
-                            </v-list-tile-content>
-                        </v-list-tile>
-                    </template>
-                </v-list>
-            </v-card>
-        </v-flex>
-     </v-layout>
-      <div >
-        <v-layout  >
-    <v-dialog v-model="dialog" width="800px">
-
-      <v-card full-widht>
-        <v-card-title>
-          <span class="headline">{{title}}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-list-tile
-                                            v-for="msg in this.messages"
-                                            avatar
-
-                                    >
-                                        <v-list-tile-avatar>
-                                            <img :src="msg.avatar">
-                                        </v-list-tile-avatar>
-                                        <span class="spanAuthor">{{msg.author}} :   </span>
-                                        <v-list-tile-content>
-                                            <v-list-tile-title v-text="msg.text"></v-list-tile-title>
-                                        </v-list-tile-content>
-                                    </v-list-tile>
-        </v-card-text>
-         <v-text-field
-         id="msgForm"
-            solo
-            fixed
-            full-width
-            v-model = "message_text"
-            placeholder="Message"
-         >
-         </v-text-field>
-         <v-spacer></v-spacer>
-         <v-btn
-            light
-            left
-            @click = "sendMsg"
-          >
-            Send
-          </v-btn>
-      </v-card>
-    </v-dialog>
-  </v-layout>
-  </div>
+                            Send
+                        </v-btn>
+                    </v-card>
+                </v-dialog>
+            </v-layout>
+        </div>
     </div>
 </template>
 
@@ -109,52 +106,52 @@
         let that = this
         let author
         let msg
-        var Teams
+        let Teams
         let uidArray = []
         let user = firebase.auth().currentUser.uid
         firebase.database().ref('users/'+user + '/teams'+'/team').once('value',function(snapshot){
-            for(let i=1;i<snapshot.val().length;i++){
-              if(that.title == snapshot.val()[i].name.value){
-                for(let n=0;n<snapshot.val()[i].teammates.length;n++){
-                  uidArray.push(snapshot.val()[i].teammates[n].uid)
-                }
+          for(let i=1;i<snapshot.val().length;i++){
+            if(that.title == snapshot.val()[i].name){
+              for(let n=0;n<snapshot.val()[i].teammates.length;n++){
+                uidArray.push(snapshot.val()[i].teammates[n].uid)
               }
             }
-            firebase.database().ref('users/'+firebase.auth().currentUser.uid).once('value',function(snapshot){
-              author = {
-                username : snapshot.val().username,
-                avatar : snapshot.val().profile_picture.value
+          }
+          firebase.database().ref('users/'+firebase.auth().currentUser.uid).once('value',function(snapshot){
+            author = {
+              username : snapshot.val().username,
+              avatar : snapshot.val().profile_picture.value
+            }
+            msg = {
+              author : author.username,
+              avatar: author.avatar,
+              text:that.message_text
+            }
+
+          })
+          for(let j=0;j<uidArray.length;j++){
+            let id = uidArray[j]
+            console.log(j,'-результат')
+            console.log(id)
+            firebase.database().ref('users/'+id+'/teams/team').once('value',function(snapshot) {
+              Teams = snapshot.val();
+              console.log(Teams)
+              for (let n = 0; n < Teams.length; n++) {
+                console.log(that.title)
+                console.log(Teams[n].name)
+                if (that.title == Teams[n].name) {
+                  console.log(Teams[n].name)
+                  console.log('chat:',Teams[n].chat)
+                  Teams[n].chat.push(msg);
+                  break;
+                }
               }
-              msg = {
-                author : author.username,
-                avatar: author.avatar,
-                text:that.message_text
-              }
-            })
-             for(let j=0;j<uidArray.length;j++){
-               let id = uidArray[j]
-               console.log(j,'-результат')
-               firebase.database().ref('users/' + id + '/teams' + '/team').once('value', function(snapshot) {
-                 console.log('snapshot:', snapshot.val())
-                 Teams = snapshot.val();
-                 console.log(Teams);
-                 for (let n = 0; n < Teams.length; n++) {
-                   if (that.title == Teams[n].name.value) {
-                     console.log(Teams[n].name.value)
-                     console.log('chat:',Teams[n].chat)
-                     Teams[n].chat.push(msg);
-                     break;
-                   }
-                 }
-                 console.log(Teams)
-                 firebase.database().ref('users/' + id + '/teams').set({
-                   team: Teams
-                 })
+               firebase.database().ref('users/'+id+'/teams').set({
+                 team : Teams
                })
-             }
+            })
+          }
         })
-
-
       }
     },
     created(){
@@ -170,7 +167,7 @@
           chat_info = {
             messages: snapshot.val()[i].chat,
             lastMsg: snapshot.val()[i].chat[snapshot.val()[i].chat.length - 1],
-            team_name: snapshot.val()[i].name.value,
+            team_name: snapshot.val()[i].name,
             team_avatar: snapshot.val()[i].avatar
           }
           tempChats.push(chat_info);
@@ -187,11 +184,10 @@
               that.messages = that.chats[n].messages
             }
           }
-      }
+        }
         console.log(that.chats)
       })
-
-  }
+    }
   }
 </script>
 
@@ -204,11 +200,12 @@
     }
 
     .spanAuthor{
-      color : red
+        color : red
     }
     #msgForm{
-      position: absolute;
-      width:640px;
-      height: 990px;
+        position: absolute;
+        width:640px;
+        height: 990px;
     }
 </style>
+

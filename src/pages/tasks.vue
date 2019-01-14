@@ -1,37 +1,25 @@
 <template>
-    <div id="content">
     <v-container >
-        <v-layout row>
-            <v-flex full-width>
-                <v-card>
-                    <v-toolbar color="dark" dark>
-                        <v-toolbar-title>My Teams</v-toolbar-title>
-                        <v-spacer></v-spacer>
-                    </v-toolbar>
-                    <v-list light>
-                        <v-list-tile
+        <v-layout xs12 >
+            <v-flex >
+                <v-card xs12>
+                    <v-list light full-width>
+                        <v-list-tile full-width
                                 v-for="team in teams"
                                 avatar
-                                @click=""
+                                @click="showMenu(team)"
                         >
-                            <v-list-tile-content>
-                                <v-list-tile-title v-text="team.name.value"></v-list-tile-title>
+                            <v-list-tile-content full-width>
+                                <v-list-tile-title v-text="team.name"></v-list-tile-title>
                             </v-list-tile-content>
                             <v-list-tile-avatar>
                                 <img :src="team.avatar">
                             </v-list-tile-avatar>
-                            <v-btn flat
-                                color="dark"
-                                @click="showMenu(team)"
-                            >
-                                Open menu
-                            </v-btn>
                         </v-list-tile>
                     </v-list>
                 </v-card>
             </v-flex>
         </v-layout>
-
     <v-dialog
             v-model="dialogTask"
             width="500"
@@ -46,7 +34,7 @@
                 >
                 </v-text-field>
             <div>
-                <v-date-picker v-model="picker" :landscape="landscape" :reactive="reactive"></v-date-picker>
+                <v-date-picker v-model="picker" :landscape="true" :reactive="true"></v-date-picker>
                 <v-time-picker v-model="pickerTime" :landscape="true"></v-time-picker>
             </div>
             </v-card-title>
@@ -78,7 +66,7 @@
                         <v-btn @click="showTasks" flat>Tasks</v-btn>
                         <v-btn @click="showTeammeates"flat>Teammaetes</v-btn>
                         <v-btn @click="showInformation"flat>Information</v-btn>
-                        <v-btn @click="showChat"flat>History</v-btn>
+                        <v-btn @click="showHistory"flat>History</v-btn>
                     </v-toolbar-items>
                 </v-toolbar>
                 <div v-if="flagTasks">
@@ -89,39 +77,29 @@
                                 <v-toolbar-title>My Teams</v-toolbar-title>
                                 <v-spacer></v-spacer>
                             </v-toolbar>
-
                             <v-list light>
                                 <v-list-tile
-                                        v-for="task in currentTeam.tasks"
-
+                                        v-for="task in tasks"
                                         avatar
-                                        @click=""
                                 >
-                                    <v-icon id="Spans" v-if="!task.main.main" @click="Favourite(task)">mdi-star-outline</v-icon>
-                                    <v-icon id="Spans" v-if="task.main.main" @click="unFavourite(task)">mdi-star</v-icon>
                                     <v-icon>mdi-calendar-range</v-icon>
                                     <span id="Spans">{{task.date}}</span>
-
                                         <v-list-tile-title v-text="task.name"></v-list-tile-title>
-
                                     <v-btn
                                             flat
-                                            v-if="!(task.failed.value || task.completed.value)"
                                             @click="completedTask(task)"
                                     >
                                         <v-icon>mdi-check-circle</v-icon>
                                         </v-btn>
                                     <v-btn
-                                            v-if="!(task.failed.value || task.completed.value)"
                                             flat
                                             @click="failedTask(task)"
                                     >
                                         <v-icon>mdi-window-close</v-icon>
                                     </v-btn>
                                     <v-btn
-                                            v-if="check"
                                             flat
-                                            @click="deleteTask(task.name)"
+                                            @click="deleteTask(task)"
                                     >
                                         <v-icon>mdi-delete</v-icon>
                                     </v-btn>
@@ -129,8 +107,7 @@
                             </v-list>
                             <v-btn
                                 dark
-                                @click="test"
-                                v-if="check"
+                                @click="dialogTask=true"
                             >
                                 Add new task
                             </v-btn>
@@ -171,307 +148,152 @@
                     <span>Creator:{{currentTeam.creator.nickname}}</span>
                 </div>
                 <div v-if="flagHistory">
-
                 </div>
             </v-flex>
         </v-dialog>
 </v-container>
-    </div>
 </template>
-
 <script>
   import  firebase from 'firebase'
   export default {
     data() {
       return {
-        text_msg : null,
-        check : false,
+        currentUid:null,
+        tasks:[],
         pickerTime:null,
         flagTasks :true,
         flagTeammates:false,
         flagInformation:false,
         nameOfTask:null,
         picker: new Date().toISOString().substr(0, 10),
-        landscape: true,
-        reactive: true,
         currentTeam : null,
         dialogTask:false,
         dialogTeam:false,
-        flagChat:false,
         flagHistory:false,
         teams: [
         ]
       }
     },
     methods : {
-        sendMsg : function(){
-          let uidArray = []
-          for(let i = 0 ; i<this.currentTeam.teammates.length;i++){
-            uidArray[i] = this.currentTeam.teammates[i].uid
-          }
-          console.log(uidArray);
-          var author_info
-          firebase.database().ref('users/'+firebase.auth().currentUser.uid).on('value',function(snapshot){
-            author_info = {
-              author:snapshot.val().username,
-              avatar:snapshot.val().profile_picture
-            }
-          })
-          var msg_info = {
-            author:author_info.author,
-            avatar:author_info.avatar,
-            text:this.text_msg
-          }
-          var Teams
-          var that = this
-           for(let j=0;j<uidArray.length;j++){
-             let id = uidArray[j]
-             console.log(j,'-результат')
-             firebase.database().ref('users/' + id + '/teams' + '/team').once('value', function(snapshot) {
-               console.log('snapshot:', snapshot.val())
-               Teams = snapshot.val();
-               console.log(Teams);
-               for (let n = 0; n < Teams.length; n++) {
-                 if (that.currentTeam.name.value == Teams[n].name.value) {
-                   console.log(that.currentTeam.name.value)
-                   console.log(Teams[n].name.value)
-                   console.log('chat:',Teams[n].chat)
-                   Teams[n].chat.push(msg_info);
-                   break;
-                 }
-               }
-               console.log(Teams)
-               firebase.database().ref('users/' + id + '/teams').set({
-                 team: Teams
-               })
-             })
-           }
-           this.text_msg = '';
-        },
-        test : function() {
-          this.dialogTask = true;
-          console.log(this.teams.length)
-        },
         addTask : function() {
-          for(let i=0;i<this.currentTeam.teammates.length;i++){
-            let uidForHistory = this.currentTeam.teammates[i].uid
-            let history_info={
-              Author : "Admin",
-              Name: 'Test',
-              Information : 'Was completed'
-            }
-            console.log(uidForHistory)
-            console.log(history_info)
+          let Teams
+          let that = this;
+          let task_info = {
+            name: this.nameOfTask,
+            date: this.picker,
+            time: this.pickerTime,
+            team: this.currentTeam.name
           }
-          console.log('Current team:', this.currentTeam)
-          var Teams;
-          var that = this;
-          var task_info = {
-            name: that.nameOfTask,
-            date: that.picker,
-            time: that.pickerTime,
-            completed:{ value:false},
-            failed: {value:false},
-            main: { main: false },
-            team: that.currentTeam.name
-          }
-          console.log('this.teammates:',this.currentTeam.teammates)
-          if(this.currentTeam.tasks != undefined) {
-            this.currentTeam.tasks.push(task_info)
-          }
-          else{
-            this.currentTeam.tasks = [task_info,]
-          }
-          for(let i=0;i<that.currentTeam.teammates.length;i++) {
-            console.log(i,'-результат:')
-            var id = that.currentTeam.teammates[i].uid;
-            console.log(id);
-            firebase.database().ref('users/' + id + '/teams' + '/team').once('value', function(snapshot) {
-              console.log('snapshot:', snapshot.val())
-              Teams = snapshot.val();
-              console.log(Teams);
-              for (let n = 0; n < Teams.length; n++) {
-                if (that.currentTeam.name.value == Teams[n].name.value) {
-                  console.log(that.currentTeam.name.value)
-                  console.log(Teams[n].name.value)
-                  console.log('tasks:',Teams[n].tasks)
-                  if(Teams[n].tasks!=undefined) {
-                    Teams[n].tasks.push(task_info);
-                  }
-                  else{
-                    console.log('work')
-                    Teams[n].tasks = [task_info,]
-                  }
-                  break;
+          let teamName = this.currentTeam.name
+          firebase.database().ref('users/' + that.currentUid + '/teams' + '/team').once('value', function(snapshot) {
+            Teams = snapshot.val();
+            for (let n = 0; n < Teams.length; n++) {
+              if (teamName == Teams[n].name) {
+                if (Teams[n].tasks != undefined) {
+                  Teams[n].tasks.push(task_info);
+                } else {
+                  Teams[n].tasks = [task_info,]
                 }
+              that.tasks = Teams[n].tasks
+                break;
               }
-              console.log(Teams)
-              firebase.database().ref('users/' + id + '/teams').set({
-                team: Teams
-              })
+            }
+            firebase.database().ref('users/' + that.currentUid+ '/teams').set({
+              team: Teams
             })
-            this.dialogTask = false
-                      }
+          })
         },
       showMenu:function(team) {
-        console.log(team)
+        this.currentTeam = team
+        this.currentUid = team.creator.uid
+        this.dialogTeam = true
         let that = this
-        this.currentTeam = team;
-        let teamName = this.currentTeam.name.value
-        let creatorTasks
-        let teamIndex
-        let   oldTeams = that.teams
-        firebase.database().ref('users/'+this.currentTeam.creator.uid+'/teams'+'/team').once('value',function(snapshot){
-          console.log(snapshot.val())
-          for(let i=0;i<snapshot.val().length;i++){
-            if(snapshot.val()[i].name.value == teamName){
-              creatorTasks = snapshot.val()[i].tasks
-
-              console.log(creatorTasks)
-              that.currentTeam.tasks = creatorTasks
-              for(let g=0;g<that.teams.length;g++){
-                  if(that.teams[g].name.value == teamName){
-                      teamIndex = g
-                      console.log(teamIndex)
-                      that.teams[g].tasks = creatorTasks
-                      console.log('old:',oldTeams)
-                      for(let x=0;x<oldTeams.length;x++){
-
-                          that.teams[g].tasks[x].main.main = oldTeams[g].tasks[x].main.main
-                      }
-                      firebase.database().ref('users/'+firebase.auth().currentUser.uid+'/teams').set({
-                        team: that.teams
-                      })
-                  }
-              }
-            }
-          }
+        firebase.database().ref('users/'+team.creator.uid).child('teams').child('team').orderByChild('name').equalTo(team.name).once('value',function(snapshot) {
+          snapshot.forEach(function(childSnapshot) {
+            that.tasks = childSnapshot.val().tasks;
+          });
         })
-
-        console.log(this.currentTeam)
-        this.dialogTeam = true;
-        console.log(firebase.auth().currentUser.uid)
-        if(firebase.auth().currentUser.uid == this.currentTeam.creator.uid){
-          this.check = true;
-        }
-        else{
-          this.check = false
-        }
       },
       completedTask:function(task) {
-        for(let i=0;i<this.currentTeam.teammates.lenght;i++){
-          let uidForHistory = this.currentTeam.teammates[i].uid
-          let history_info={
-            Author : "Admin",
-            Name: task.name,
-            Information : 'Was completed'
-          }
-        }
-        task.completed.value=true
-        let taskIndex
+          let teams
         let that = this
-        let tempTeams
-        for(let u=0;u<this.currentTeam.tasks.length;u++){
-          if(this.currentTeam.tasks[u].name == task.name){
-            taskIndex = u
-          }
-        }
-      for(let i=0;i<this.currentTeam.teammates.length;i++){
-        let teamIndex
-          let id = this.currentTeam.teammates[i].uid
-          console.log(id)
-        firebase.database().ref('users/'+id+'/teams'+'/team').on('value',function(snapshot){
-          tempTeams = snapshot.val()
-          for(let h=0;h<snapshot.val().length;h++){
-            if(snapshot.val()[h].name.value == that.currentTeam.name.value){
-              console.log('work')
-                tempTeams[h].tasks.splice(taskIndex,1)
-                console.log(tempTeams)
-              break;
+        console.log(this.currentTeam.creator.uid)
+        console.log(task.name)
+        firebase.database().ref('users/'+this.currentUid+'/teams/team').on('value',function(snapshot) {
+          teams=snapshot.val()
+          for(let i=0;i<teams.length;i++){
+            if(teams[i].name == task.team){
+                for(let j=0;j<teams[i].tasks.length;j++){
+                  console.log(task.name)
+                  console.log(teams[i].tasks[j].name)
+                  if(task.name == teams[i].tasks[j].name){
+                    teams[i].tasks.splice(j,1)
+
+                   console.log(teams)
+                    firebase.database().ref('users/'+that.currentUid+'/teams').set({
+                      team: teams
+                    })
+                  }
+                }
             }
           }
+        console.log(teams)
         })
-
-        firebase.database().ref('users/'+id+'/teams').set({
-            team : tempTeams
-        })
-      }
-        that.currentTeam.tasks.splice(taskIndex,1)
       },
       failedTask:function(task) {
-
-        let taskIndex
+        let teams
         let that = this
-        let tempTeams
-        for(let u=0;u<this.currentTeam.tasks.length;u++){
-          if(this.currentTeam.tasks[u].name == task.name){
-            taskIndex = u
-          }
-        }
+        console.log(this.currentTeam.creator.uid)
+        console.log(task.name)
+        firebase.database().ref('users/'+this.currentUid+'/teams/team').on('value',function(snapshot) {
+          teams=snapshot.val()
+          for(let i=0;i<teams.length;i++){
+            if(teams[i].name == task.team){
+              for(let j=0;j<teams[i].tasks.length;j++){
+                console.log(task.name)
+                console.log(teams[i].tasks[j].name)
+                if(task.name == teams[i].tasks[j].name){
+                  teams[i].tasks.splice(j,1)
 
-      for(let i=0;i<this.currentTeam.teammates.length;i++){
-        let teamIndex
-          let id = this.currentTeam.teammates[i].uid
-          console.log(id)
-        firebase.database().ref('users/'+id+'/teams'+'/team').on('value',function(snapshot){
-          tempTeams = snapshot.val()
-          for(let h=0;h<snapshot.val().length;h++){
-
-            if(snapshot.val()[h].name.value == that.currentTeam.name.value){
-              console.log('work')
-                tempTeams[h].tasks.splice(taskIndex,1)
-                console.log(tempTeams)
-              break;
-            }
-          }
-        })
-
-        firebase.database().ref('users/'+id+'/teams').set({
-            team : tempTeams
-        })
-      }
-      that.currentTeam.tasks.splice(taskIndex,1)
-      },
-      deleteTask:function(name) {
-        var tempTeams
-        var uidArray = [];
-        for(let n=0;n<this.currentTeam.teammates.length;n++){
-          uidArray[n] = this.currentTeam.teammates[n].uid
-        }
-        for(let n=0;n<uidArray.length;n++) {
-          let id = uidArray[n];
-          firebase.database().ref('users/' + id + '/teams' + '/team').once('value', function(snapshot) {
-            tempTeams = snapshot.val()
-          })
-          console.log(tempTeams)
-          for (let i = 0; i < tempTeams.length; i++) {
-            if (tempTeams[i].tasks!=undefined) {
-            for (let j = 0; j < tempTeams[i].tasks.length; j++) {
-                if (name == tempTeams[i].tasks[j].name) {
-                  console.log('work');
-                  var indexTeam = i;
-                  var indexTask = j;
-                  break;
+                  console.log(teams)
+                  firebase.database().ref('users/'+that.currentUid+'/teams').set({
+                    team: teams
+                  })
                 }
               }
             }
           }
-          tempTeams[indexTeam].tasks.splice(indexTask, 1);
-          for (let i = 0; i < this.currentTeam.tasks.length; i++) {
-            if (name == this.currentTeam.tasks[i].name  ) {
-              this.currentTeam.tasks.splice(i, 1)
+          console.log(teams)
+        })
+      },
+      deleteTask:function(task) {
+        let teams
+        let that = this
+        console.log(this.currentTeam.creator.uid)
+        console.log(task.name)
+        firebase.database().ref('users/'+this.currentUid+'/teams/team').on('value',function(snapshot) {
+          teams=snapshot.val()
+          for(let i=0;i<teams.length;i++){
+            if(teams[i].name == task.team){
+              for(let j=0;j<teams[i].tasks.length;j++){
+                console.log(task.name)
+                console.log(teams[i].tasks[j].name)
+                if(task.name == teams[i].tasks[j].name){
+                  teams[i].tasks.splice(j,1)
+
+                  console.log(teams)
+                  firebase.database().ref('users/'+that.currentUid+'/teams').set({
+                    team: teams
+                  })
+                }
+              }
             }
           }
-          console.log(n , 'ий результат:');
-          console.log(tempTeams);
-         console.log('ID:',id)
-            firebase.database().ref('users/' + id + '/teams').set({
-              team: tempTeams
-            })
-          }
-        this.dialogTeam = false
-        this.dialogTeam = true
-      },
+          console.log(teams)
+        })
+          },
+
+
       showTasks : function() {
         this.flagTasks=true
         this.flagInformation = false
@@ -490,8 +312,8 @@
         this.flagTeammates = false
         this.flagHistory = false
       },
-      showChat:function(){
-          this.flagTasks = false
+      showHistory:function(){
+        this.flagTasks = false
         this.flagInformation = false
         this.flagHistory=true
         this.flagTeammates = false
@@ -518,7 +340,6 @@
           main :true
         })
 },
-
       unFavourite : function(task){
         task.main.main = false
          console.log(task);
@@ -547,31 +368,12 @@
       let that = this;
       firebase.database().ref('users/'+user.uid+'/teams'+'/team').once('value',function(snapshot) {
         let teams_info = snapshot.val()
-
         that.teams = teams_info;
         console.log(teams_info);
-
       })
-
       this.currentTeam = this.teams[0]
     }
   }
 </script>
 <style scoped>
-    li{
-        list-style-type : none;
-    }
-    #Spans{
-        margin-right:20px;
-    }
-    #content{
-        position:absolute;
-        left:10%;
-        top:10%;
-        width:90;
-    }
-    .spanAuthor{
-        color:green;
-      }
-
  </style>

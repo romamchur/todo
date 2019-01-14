@@ -36,7 +36,6 @@
                         </v-text-field>
 
                         <v-btn color="info" dark @click="signup()"> Sign Up </v-btn>
-                        <v-btn color="light" light @click="signupFacebook()"> Sign Up with Facebook</v-btn>
                     </v-form>
                 </v-flex>
             </v-layout>
@@ -88,7 +87,7 @@
                         avatar:"https://wi-images.condecdn.net/image/6DoWNVJlrWM/crop/2040/f/black-hole.jpg"}],
                 countCompleted:0,
                 countFailed:0,
-                name: {value:'Individual'},
+                name: 'Individual',
                   teammates:
                   [{
                     uid:firebase.auth().currentUser.uid,

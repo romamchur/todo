@@ -1,6 +1,5 @@
 <template>
     <v-flex full-width>
-  
     <v-form ref="form" class="nickname_q" lazy-validation>
         <v-text-field
                 v-model="nickname"
@@ -54,7 +53,6 @@
 <script>
   var creatorName;
 var creatorAvatar;
-
     import  firebase from 'firebase'
   export default {
     data () {
@@ -66,7 +64,6 @@ var creatorAvatar;
         ],
         teams : []
       }
-
       },
     methods:
       {
@@ -86,31 +83,25 @@ var creatorAvatar;
             });
           })
         },
-
         createNewTeam: function() {
           firebase.database().ref('users/'+  firebase.auth().currentUser.uid).on('value',(snapshot)=>{
         creatorName = snapshot.val().username;
         creatorAvatar = snapshot.val().profile_picture
           })
           let team_info = {
-            chat:[{
-              author:'Admin',
-              text:"Hello , it's your chat ",
-              avatar : "https://wi-images.condecdn.net/image/6DoWNVJlrWM/crop/2040/f/black-hole.jpg"
-            }],
-            name : {value:this.name},
-            tasks: [{
+              chat:[{
+                author:'Admin',
+                text:"Hello , it's your chat ",
+                avatar : "https://wi-images.condecdn.net/image/6DoWNVJlrWM/crop/2040/f/black-hole.jpg"
+              }],
 
-              main:{
-                main:false
-              },
+            name : this.name,
+            tasks: [{
               countCompleted:0,
               countFailed:0,
               name:'Created team',
-              failed:{value:false},
-              completed:{value:true}
+              team:this.name
             }],
-
             creator : {
               uid: firebase.auth().currentUser.uid,
               nickname: creatorName,
@@ -145,7 +136,6 @@ var creatorAvatar;
           }
           this.name = '';
           this.nickname='';
-
         }
     },
     created () {
